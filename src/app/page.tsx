@@ -5,10 +5,12 @@ import About from "@/components/sections/About";
 import Testimonials from "@/components/sections/Testimonials";
 import Contact from "@/components/sections/Contact";
 import TraditionalDivider from "@/components/ui/TraditionalDivider";
+import Loader from "@/components/ui/Loader";
 
 export default function Home() {
   return (
     <main>
+      <Loader />
       <Navbar />
       <Hero />
       <TraditionalDivider />
