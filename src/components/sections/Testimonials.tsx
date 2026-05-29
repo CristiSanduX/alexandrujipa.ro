@@ -87,6 +87,7 @@ export default function Testimonials() {
   return (
     <section
       ref={ref}
+      id="recenzii"
       data-navbar-theme="light"
       className="bg-[var(--brand-cream)] py-20 md:py-28 overflow-hidden"
     >
