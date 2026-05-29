@@ -12,19 +12,39 @@ const links = [
 ];
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const sections = document.querySelectorAll("[data-navbar-theme]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const theme = (entry.target as HTMLElement).dataset.navbarTheme;
+            setIsDark(theme === "dark");
+          }
+        });
+      },
+      { threshold: 0.4 }
+    );
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
+
+  const isLight = !isDark && !menuOpen;
 
   return (
     <>
@@ -33,15 +53,32 @@ export default function Navbar() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled || menuOpen
-            ? "bg-white/95 backdrop-blur-md py-3 shadow-sm"
-            : "bg-transparent py-5 md:py-7"
+          isDark && !menuOpen ? "py-3 md:py-4" : "py-1.5 md:py-2"
+        } ${
+          menuOpen
+            ? "bg-white/95 backdrop-blur-md"
+            : isLight
+            ? "bg-white/95 backdrop-blur-md"
+            : "bg-transparent"
         }`}
       >
+        {/* Linie decorativă jos — apare pe light */}
+        <div className={`absolute bottom-0 left-0 right-0 h-px transition-all duration-500 ${
+          isLight || menuOpen
+            ? "bg-gradient-to-r from-transparent via-[var(--brand-red)]/30 to-transparent opacity-100"
+            : "opacity-0"
+        }`} />
+
         <div className="max-w-6xl mx-auto px-5 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 md:gap-3" onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-            <div className={`relative w-11 h-11 md:w-16 md:h-16 transition-all duration-500 ${scrolled || menuOpen ? "mix-blend-multiply" : "mix-blend-screen"}`}>
+          <Link
+            href="/"
+            className="flex items-center gap-2 md:gap-3 group"
+            onClick={() => { setMenuOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+          >
+            <div className={`relative transition-all duration-500 ${
+              isDark && !menuOpen ? "w-11 h-11 md:w-14 md:h-14" : "w-9 h-9 md:w-11 md:h-11"
+            } ${!isDark || menuOpen ? "mix-blend-multiply" : "mix-blend-screen"}`}>
               <Image
                 src="/images/logo.png"
                 alt="Jipa Școala de Dans"
@@ -50,14 +87,17 @@ export default function Navbar() {
                 sizes="56px"
               />
             </div>
-            <div className="flex flex-col leading-[1.1] items-center">
-              <span
-                className={`text-xs md:text-sm tracking-normal uppercase font-medium transition-colors duration-500 ${scrolled || menuOpen ? "text-[var(--brand-dark)]/60" : "text-white/80"}`}
-              >
+
+            <div className="flex flex-col leading-[1.15] items-start">
+              <span className={`text-[10px] md:text-xs tracking-[0.18em] uppercase font-medium transition-colors duration-500 ${
+                isDark && !menuOpen ? "text-white/60" : "text-[var(--brand-red)]/70"
+              }`}>
                 Școala de Dans
               </span>
               <span
-                className={`text-lg md:text-2xl font-bold tracking-wide transition-colors duration-500 ${scrolled || menuOpen ? "text-[var(--brand-dark)]" : "text-white"}`}
+                className={`text-base md:text-xl font-bold tracking-wide transition-all duration-500 ${
+                  isDark && !menuOpen ? "text-white" : "text-[var(--brand-dark)]"
+                }`}
                 style={{ fontFamily: "var(--font-playfair), serif" }}
               >
                 Alexandru Jipa
@@ -66,15 +106,18 @@ export default function Navbar() {
           </Link>
 
           {/* Nav links — desktop */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-10">
             {links.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className={`text-base font-bold tracking-widest uppercase transition-colors duration-300 relative group ${scrolled ? "text-[var(--brand-dark)]/80 hover:text-[var(--brand-dark)]" : "text-white/90 hover:text-white"}`}
+                className={`relative text-[11px] tracking-[0.2em] uppercase font-semibold transition-colors duration-300 group ${
+                  isDark ? "text-white/80 hover:text-white" : "text-[var(--brand-dark)]/70 hover:text-[var(--brand-dark)]"
+                }`}
               >
                 {link.label}
-                <span className="absolute -bottom-1 left-0 w-0 h-px bg-[var(--brand-red)] transition-all duration-300 group-hover:w-full" />
+                {/* linie roșie animată jos */}
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-px bg-[var(--brand-red)] transition-all duration-300 group-hover:w-full" />
               </a>
             ))}
           </nav>
@@ -82,11 +125,27 @@ export default function Navbar() {
           {/* CTA — desktop */}
           <a
             href="#contact"
-            className={`group relative hidden md:inline-flex items-center text-xs tracking-[0.25em] uppercase font-semibold px-6 py-3 transition-all duration-300 overflow-hidden hover:-translate-y-0.5 ${scrolled ? "text-[var(--brand-dark)]" : "text-white"}`}
+            className={`group relative hidden md:inline-flex items-center gap-2 text-[10px] tracking-[0.22em] uppercase font-semibold px-5 py-2.5 transition-all duration-300 overflow-hidden hover:-translate-y-px ${
+              isDark ? "text-white" : "text-[var(--brand-dark)]"
+            }`}
           >
-            <span className={`absolute inset-0 border transition-colors duration-300 ${scrolled ? "border-[var(--brand-dark)]/30 group-hover:border-[var(--brand-red)]" : "border-white/50 group-hover:border-white"}`} />
-            <span className={`absolute inset-0 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ${scrolled ? "bg-[var(--brand-red)]" : "bg-white"}`} />
-            <span className={`relative z-10 transition-colors duration-300 ${scrolled ? "group-hover:text-white" : "group-hover:text-[var(--brand-dark)]"}`}>Înscrie-te</span>
+            {/* Border */}
+            <span className={`absolute inset-0 transition-colors duration-300 ${
+              isDark
+                ? "border border-white/40 group-hover:border-white/80"
+                : "border border-[var(--brand-red)]/40 group-hover:border-[var(--brand-red)]"
+            }`} />
+            {/* Fill */}
+            <span className={`absolute inset-0 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ${
+              isDark ? "bg-white" : "bg-[var(--brand-red)]"
+            }`} />
+            {/* Ornament */}
+            <span className={`relative z-10 text-[var(--brand-red)] transition-colors duration-300 ${
+              isDark ? "group-hover:text-[var(--brand-dark)]" : "group-hover:text-white"
+            }`}>✦</span>
+            <span className={`relative z-10 transition-colors duration-300 ${
+              isDark ? "group-hover:text-[var(--brand-dark)]" : "group-hover:text-white"
+            }`}>Înscrie-te</span>
           </a>
 
           {/* Hamburger — mobile */}
@@ -95,9 +154,9 @@ export default function Navbar() {
             className="md:hidden flex flex-col justify-center items-center w-12 h-12 gap-1.5 relative z-[60]"
             aria-label="Meniu"
           >
-            <span className={`block w-6 h-0.5 transition-all duration-300 origin-center ${menuOpen ? "rotate-45 translate-y-2" : ""} ${scrolled || menuOpen ? "bg-[var(--brand-dark)]" : "bg-white"}`} />
-            <span className={`block w-6 h-0.5 transition-all duration-300 ${menuOpen ? "opacity-0 scale-x-0" : ""} ${scrolled || menuOpen ? "bg-[var(--brand-dark)]" : "bg-white"}`} />
-            <span className={`block w-6 h-0.5 transition-all duration-300 origin-center ${menuOpen ? "-rotate-45 -translate-y-2" : ""} ${scrolled || menuOpen ? "bg-[var(--brand-dark)]" : "bg-white"}`} />
+            <span className={`block h-px transition-all duration-300 origin-center ${menuOpen ? "w-5 rotate-45 translate-y-[5px]" : "w-5"} ${isDark && !menuOpen ? "bg-white" : "bg-[var(--brand-dark)]"}`} />
+            <span className={`block h-px transition-all duration-300 ${menuOpen ? "w-0 opacity-0" : "w-5"} ${isDark && !menuOpen ? "bg-white" : "bg-[var(--brand-dark)]"}`} />
+            <span className={`block h-px transition-all duration-300 origin-center ${menuOpen ? "w-5 -rotate-45 -translate-y-[5px]" : "w-5"} ${isDark && !menuOpen ? "bg-white" : "bg-[var(--brand-dark)]"}`} />
           </button>
         </div>
       </motion.header>
@@ -112,23 +171,35 @@ export default function Navbar() {
             transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
             className="fixed inset-0 z-40 bg-[var(--brand-cream)] flex flex-col md:hidden"
           >
-            {/* Links centrate vertical */}
-            <div className="flex flex-col items-center justify-center flex-1 gap-1">
+            {/* Ornament top */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--brand-red)]/40 to-transparent" />
+
+            <div className="flex flex-col items-center justify-center flex-1 gap-0.5">
+              {/* Ornament decorativ deasupra link-urilor */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="text-[var(--brand-red)]/40 text-xs tracking-[0.3em] uppercase mb-6"
+              >
+                ✦ &nbsp; Meniu &nbsp; ✦
+              </motion.p>
+
               {links.map((link, i) => (
                 <motion.a
                   key={link.href}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 14 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.15 + i * 0.08, duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="group flex items-center gap-3 px-8 py-3 w-full justify-center"
+                  className="group relative flex items-center gap-4 px-8 py-3 w-full justify-center"
                 >
-                  <span className="text-[var(--brand-red)] text-[10px] font-light tracking-widest opacity-60">
+                  <span className="text-[var(--brand-red)]/40 text-[9px] font-light tracking-widest tabular-nums">
                     0{i + 1}
                   </span>
                   <span
-                    className="text-[var(--brand-dark)] text-2xl font-semibold tracking-[0.15em] uppercase group-hover:text-[var(--brand-red)] transition-colors duration-300"
+                    className="text-[var(--brand-dark)] text-[1.6rem] font-semibold tracking-[0.12em] uppercase group-hover:text-[var(--brand-red)] transition-colors duration-300"
                     style={{ fontFamily: "var(--font-playfair), serif" }}
                   >
                     {link.label}
@@ -140,9 +211,9 @@ export default function Navbar() {
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ delay: 0.45, duration: 0.5 }}
+                transition={{ delay: 0.42, duration: 0.5 }}
                 style={{ transformOrigin: "center" }}
-                className="w-8 h-px bg-[var(--brand-red)] my-4"
+                className="w-12 h-px bg-gradient-to-r from-transparent via-[var(--brand-red)]/50 to-transparent my-5"
               />
 
               {/* CTA */}
@@ -152,11 +223,16 @@ export default function Navbar() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.4 }}
-                className="bg-[var(--brand-red)] text-white px-10 py-3 text-xs tracking-[0.25em] uppercase font-semibold"
+                className="group relative overflow-hidden bg-[var(--brand-red)] text-white px-10 py-3 text-[10px] tracking-[0.28em] uppercase font-semibold flex items-center gap-2"
               >
-                Înscrie-te
+                <span className="absolute inset-0 bg-white/10 translate-x-[-110%] skew-x-[-20deg] group-hover:translate-x-[110%] transition-transform duration-700" />
+                <span>✦</span>
+                <span>Înscrie-te</span>
               </motion.a>
             </div>
+
+            {/* Ornament bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--brand-red)]/20 to-transparent" />
           </motion.div>
         )}
       </AnimatePresence>

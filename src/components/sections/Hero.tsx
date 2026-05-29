@@ -16,7 +16,7 @@ const fadeUp: Variants = {
 
 export default function Hero() {
   return (
-    <section className="relative h-[100dvh] min-h-[600px] overflow-hidden flex items-center justify-center">
+    <section data-navbar-theme="dark" className="relative h-[100dvh] min-h-[600px] overflow-hidden flex items-center justify-center">
 
       {/* Background image */}
       <div className="absolute inset-0 w-full h-full z-0">
