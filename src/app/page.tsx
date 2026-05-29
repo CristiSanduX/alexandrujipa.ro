@@ -6,6 +6,7 @@ import Testimonials from "@/components/sections/Testimonials";
 import Contact from "@/components/sections/Contact";
 import TraditionalDivider from "@/components/ui/TraditionalDivider";
 import Loader from "@/components/ui/Loader";
+import Gallery from "@/components/sections/Gallery";
 
 export default function Home() {
   return (
@@ -15,7 +16,8 @@ export default function Home() {
       <Hero />
       <TraditionalDivider />
       <About />
-
+      <TraditionalDivider />
+      <Gallery />
       <TraditionalDivider />
       <Testimonials />
       <TraditionalDivider />
