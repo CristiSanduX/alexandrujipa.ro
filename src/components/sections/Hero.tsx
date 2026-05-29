@@ -39,7 +39,7 @@ export default function Hero() {
         className="absolute inset-0 w-full h-full scale-110"
       >
         <Image
-          src="/images/hero.jpg"
+          src="/images/home.jpg"
           alt="Spectacol de dans tradițional românesc"
           fill
           priority
