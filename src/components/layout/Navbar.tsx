@@ -33,7 +33,7 @@ export default function Navbar() {
           }
         });
       },
-      { threshold: 0.4 }
+      { threshold: 0.15 }
     );
     sections.forEach((s) => observer.observe(s));
     return () => observer.disconnect();
