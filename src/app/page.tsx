@@ -7,6 +7,7 @@ import Contact from "@/components/sections/Contact";
 import TraditionalDivider from "@/components/ui/TraditionalDivider";
 import Loader from "@/components/ui/Loader";
 import Gallery from "@/components/sections/Gallery";
+import FAQ from "@/components/sections/FAQ";
 
 export default function Home() {
   return (
@@ -20,6 +21,8 @@ export default function Home() {
       <Gallery />
       <TraditionalDivider />
       <Testimonials />
+      <TraditionalDivider />
+      <FAQ />
       <TraditionalDivider />
       <Contact />
       <Footer />

@@ -7,6 +7,7 @@ const links = [
   { label: "Despre", href: "#despre" },
   { label: "Galerie", href: "#galerie" },
   { label: "Recenzii", href: "#recenzii" },
+  { label: "FAQ", href: "#faq" },
   { label: "Contact", href: "#contact" },
 ];
 
