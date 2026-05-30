@@ -4,18 +4,20 @@ import Image from "next/image";
 import { motion, type Variants } from "framer-motion";
 
 const EASE = [0.25, 0.1, 0.25, 1] as const;
-const LOADER_OFFSET = 1.8; // loader dispare la ~1.9s
 
-const fadeUp: Variants = {
+const makeFadeUp = (loaderOffset: number): Variants => ({
   hidden: { opacity: 0, y: 30 },
   visible: (delay: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, ease: EASE, delay: LOADER_OFFSET + delay },
+    transition: { duration: 0.8, ease: EASE, delay: loaderOffset + delay },
   }),
-};
+});
 
 export default function Hero() {
+  const loaderOffset = typeof window !== "undefined" && sessionStorage.getItem("loader_seen") ? 0 : 1.8;
+  const fadeUp = makeFadeUp(loaderOffset);
+
   return (
     <section data-navbar-theme="dark" className="relative h-[100dvh] min-h-[600px] overflow-hidden flex items-center justify-center">
 
@@ -108,7 +110,7 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: LOADER_OFFSET + 1.2, duration: 0.8 }}
+        transition={{ delay: loaderOffset + 1.2, duration: 0.8 }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2"
       >
         <motion.div

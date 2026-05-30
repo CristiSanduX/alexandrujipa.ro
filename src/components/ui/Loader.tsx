@@ -7,12 +7,18 @@ import Image from "next/image";
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 export default function Loader() {
-  const [phase, setPhase] = useState<"center" | "nav" | "out">("center");
+  const [phase, setPhase] = useState<"center" | "nav" | "out" | "skip" | null>(null);
   const [navPos, setNavPos] = useState<{ top: number; left: number; scale: number } | null>(null);
   const refEl = useRef<HTMLDivElement>(null);
   const loaderEl = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (sessionStorage.getItem("loader_seen")) {
+      setPhase("skip");
+      return;
+    }
+    sessionStorage.setItem("loader_seen", "1");
+    setPhase("center");
     if (refEl.current && loaderEl.current) {
       const ref = refEl.current.getBoundingClientRect();
       const loader = loaderEl.current.getBoundingClientRect();
@@ -30,7 +36,7 @@ export default function Loader() {
 
   return (
     <AnimatePresence>
-      {phase !== "out" && (
+      {phase !== null && phase !== "out" && phase !== "skip" && (
         <motion.div
           exit={{ opacity: 0, transition: { duration: 0.6, ease: EASE } }}
           className="fixed inset-0 z-[100] overflow-hidden"
